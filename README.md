@@ -1,3 +1,7 @@
+
+# PortKBoom-frontend-Angular
+PortKBoom Site portfolio feito em angular e usando api : https://github.com/lucastoledo95/api-portKBoom
+
 # PortKBoomFront
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.1.0.
@@ -57,3 +61,6 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+
+
