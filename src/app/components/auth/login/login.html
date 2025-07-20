@@ -1,0 +1,104 @@
+
+    <div class="flex flex-col md:flex-row justify-center px-4 py-10 ">
+
+        <div class="flex flex-col md:flex-row items-center justify-center max-w-[1440px] w-full gap-8">
+
+            <div class="w-full md:w-5/12 flex justify-center">
+                <div class="w-full max-w-md p-6 bg-white dark:bg-black/85 shadow-md rounded-lg">
+                    <div class="mb-6 flex justify-center">
+                        <img [src]="logo" alt="Logo" class="h-12" />
+                    </div>
+
+                    <form [formGroup]="formLogin" (ngSubmit)="onSubmit()">
+                        <div>
+                            <input id="login" type="text" required formControlName="login"
+                                placeholder=" Seu e-mail, CPF ou CNPJ" autocomplete="login"
+                                class="mt-1 block w-full h-9 text-gray-900 dark:bg-gray-900/50 dark:text-white shadow-sm" />
+                        </div>
+
+                        @if (formLogin.controls["login"].touched) {
+                        @if (formLogin.controls["login"].errors?.['required']) {
+                        <span class="mt-3 ml-2 text-red-500">Preenchimento é obrigatório.</span>
+                        }
+                        @if (formLogin.controls["login"].errors?.['emailInvalido']) {
+                        <span class="mt-3 ml-2 text-red-500">Necessário e-mail válido.</span>
+                        }
+                        @if (formLogin.controls["login"].errors?.['cpfInvalido']) {
+                        <span class="mt-3 ml-2 text-red-500">Necessário CPF válido.</span>
+                        }
+                        @if (formLogin.controls["login"].errors?.['cnpjInvalido']) {
+                        <span class="mt-3 ml-2 text-red-500">Necessário CNPJ válido.</span>
+                        }
+                        @if (formLogin.controls["login"].errors?.['tamanhoInvalido']) {
+                        <span class="mt-3 ml-2 text-red-500">CNPJ informado acima do padrão numérico.</span>
+                        }
+                        @if (formLogin.controls["login"].errors?.['loginInvalido']) {
+                        <span class="mt-3 ml-2 text-red-500">Precisa ser e-mail, CPF ou CNPJ válido.</span>
+                        }
+                        }
+
+                        <div class="mt-4">
+                            <input id="password" type="password" formControlName="password" required
+                                placeholder=" Sua senha" autocomplete="current-password"
+                                class="mt-1 block w-full h-9 text-gray-900 dark:bg-gray-900/50 dark:text-white shadow-sm" />
+                        </div>
+                        @if (formLogin.controls["password"].touched) {
+                        @if (formLogin.controls["password"].errors?.['required']) {
+                        <span class="mt-3 ml-2 text-red-500">Preenchimento é obrigatório.</span>
+                        }
+                        @if (formLogin.controls["password"].errors?.['pattern']) {
+                        <span class="mt-3 ml-2 text-red-500">A senha deve ter no mínimo 8 caracteres, incluindo letra
+                            maiúscula,
+                            minúscula, número e símbolo especial.</span>
+                        }
+                        }
+
+                        <!--
+                    <div class="mt-6 flex justify-center">
+                        <a class="text-sm underline">
+                            <re-captcha siteKey="6LeLl4YrAAAAAG36LmmnCq7PbEO_kzBKZkngaUxN"
+                                (resolved)="onCaptchaResolved($event)">
+                            </re-captcha>
+                        </a>
+                    </div>
+           -->
+
+                        <div class="mt-6">
+                            <button type="submit" [disabled]="!formLogin.valid"
+                                class="w-full inline-flex justify-center rounded-sm bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-indigo-50 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                                Entrar
+                            </button>
+                        </div>
+
+                        <div class="mt-6 flex justify-end">
+                            <a routerLink="../recuperar-senha"
+                                class="text-sm underline text-gray-800 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
+                                Esqueceu sua senha? Clique aqui
+                            </a>
+                        </div>
+
+                        <div class="mt-6">
+                            <hr class="w-full h-px border-0 bg-gray-200 dark:bg-gray-700 rounded">
+                            <a routerLink="../cadastro"
+                                class="w-full mt-4 inline-flex justify-center rounded-sm bg-orange-600/90 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-indigo-50 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                                Novo no PortKBoom? Cadastre-se
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+            <div class="w-full md:w-7/12 flex justify-center mt-10 md:mt-0 px-4">
+                <a routerLink="promoLogin">
+                    <img [src]="banner" alt="Banner login promoção"
+                        class="w-full max-w-[790px] h-auto object-contain rounded-lg shadow-lg" />
+                </a>
+            </div>
+
+
+
+
+        </div>
+    </div>
+

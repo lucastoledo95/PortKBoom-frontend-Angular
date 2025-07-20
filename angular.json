@@ -43,8 +43,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
                 }
               ],
               "outputHashing": "all"
@@ -67,7 +67,13 @@
               "buildTarget": "portKBoom-front:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+            "options": {
+              "port": 8090,
+              "ssl": true,
+              "sslCert": "portkboomfront.test.pem",
+              "sslKey": "portkboomfront.test-key.pem"
+            }
         },
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n"

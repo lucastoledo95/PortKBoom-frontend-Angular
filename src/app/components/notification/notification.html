@@ -1,0 +1,16 @@
+<div class="fixed top-[10%] left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm space-y-3">
+  @for (n of notifications(); track n.id) {
+    <div
+     @fadeSlide
+      class="rounded-sm p-4 shadow-lg text-white flex justify-between items-start"
+      [ngClass]="{
+        'bg-green-500': n.type === 'success',
+        'bg-red-500': n.type === 'error',
+        'bg-blue-500': n.type === 'info'
+      }"
+    >
+      <span>{{ n.message }}</span>
+      <button (click)="remove(n.id)" class="ml-4 text-white font-bold">✕</button>
+    </div>
+  }
+</div>
