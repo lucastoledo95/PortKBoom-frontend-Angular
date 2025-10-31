@@ -1,8 +1,10 @@
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable , PLATFORM_ID } from '@angular/core';
 import { NotificationService } from '../services/notification.service';
 import { Router } from '@angular/router';
 import { Observable, map, catchError, of } from 'rxjs';
+import { finalize } from 'rxjs/operators'; 
 
 export interface LoginDados {
   login: string;
@@ -30,66 +32,76 @@ export class ApiMaster {
   private http = inject(HttpClient);
   private notification = inject(NotificationService)
   private router = inject(Router)
+  private platformId = inject(PLATFORM_ID);
 
-  private accessToken: string | null = null; // MEMÓRIA
   private refreshTimer: any;
-  
+
+
   routeComponent: Record<string, string> = {
     'Home': '/',
     'Login': '/login',
     'Dashboard': '/minha-conta',
   };
 
-  apiUrl = 'https://api-portkboom.test/api';
-  urlBase = 'https://api-portkboom.test/';
+  apiUrl = 'https://api.portkboom.localhost/api';
+  urlBase = 'https://api.portkboom.localhost/';
 
   logoUrl = `${this.urlBase}/storage/logos/logo.png`;
   profileDefaultUrl = `${this.urlBase}/storage/logos/logo-profile.png`;
   bannerLoginUrl = `${this.urlBase}/storage/logos/banner-login.png`;
+  
 
-  // Método para pegar o token da memória
+  // Método para pegar o token do localStorage no SSR do angular
   getAccessToken(): string | null {
-    return this.accessToken;
+    // verificando se é browser
+    if (isPlatformBrowser(this.platformId)) {
+      // Este código só roda no navegador
+      return localStorage.getItem('auth_token');
+    }
+    // No servidor, sempre retorna null pois não há sessão
+    return null;
   }
 
-  // Método para criar headers com Bearer token
-  private createHeaders(): HttpHeaders {
-    const headers = new HttpHeaders();
-    if (this.accessToken) {
-      return headers.set('Authorization', `Bearer ${this.accessToken}`);
-    }
-    return headers;
-  }
 
   getUser() {
+     if (isPlatformBrowser(this.platformId)) {
     this.http.get(this.apiUrl + '/user', {
     }).subscribe({
       next: (response) => {
+   
         console.log('User data:', response);
+
       },
       error: (error) => {
-        console.log('não achei no get user irei procurar no refresh token:', error);
-        
+        // refresh apenas se o erro for 401 (negado)
+        if (error.status === 401) {
+          console.log('Token de acesso inválido ou expirado. Tentando renovar...');
           this.onRefreshToken();
-          
-        
+        } else {
+          console.error('Erro ao buscar usuário:', error);
+        }
       }
     });
+  }
   }
 
   onLogin(dados: LoginDados) {
     this.http.post<retornoLoginAPI>(this.apiUrl + '/auth/clientes/login', dados, {
+      withCredentials: true 
     }).subscribe({
       next: (response) => {
         if (response.ok) {
-          // Armazena access token na MEMÓRIA
-          this.accessToken = response.access_token;
-          
+          if (isPlatformBrowser(this.platformId)) {
+
+          // salva o access token no localStorage
+          localStorage.setItem('auth_token', response.access_token);
+
           this.notification.success('Login realizado.'); 
           this.router.navigateByUrl(this.routeComponent['Dashboard'])
           
           // Inicia refresh automático
-          //this.startRefreshTimer(response.expires_in);
+          this.startRefreshTimer(response.expires_in);
+          }          
         } else {
           this.notification.error('Erro ao realizar login.');
         }
@@ -109,16 +121,24 @@ export class ApiMaster {
 
   onRefreshToken() {
     this.http.post<retornoRefreshAPI>(this.apiUrl + '/auth/clientes/refresh-token', {}, {
+      withCredentials: true 
     }).subscribe({
       next: (response) => {
         if (response.ok) {
-          // Atualiza access token na MEMÓRIA
-          this.accessToken = response.access_token;
-          this.notification.success('Token renovado com sucesso.');
+
+          if (isPlatformBrowser(this.platformId)) {
+          // atualiza o novo access token no localStorage
+          localStorage.setItem('auth_token', response.access_token);
+          this.notification.success('Sessão renovada.');
+  
           console.log('Token renovado com sucesso:', response.access_token);
-         // this.getUser();
+        
+         
           // Reinicia timer automático
-         // this.startRefreshTimer(response.expires_in); // comentado apenas para teste
+          this.startRefreshTimer(response.expires_in);
+
+          }
+         
         } else {
           this.notification.error('Erro ao renovar token.');
            console.log('Erro ao renovar token:');
@@ -127,53 +147,70 @@ export class ApiMaster {
       },
       error: (error) => {
         console.error('Erro no refresh:', error);
-        // this.notification.error('Sessão expirada. Faça login novamente.'); // comentado apenas para teste
-        // this.onLogout(); // comentado apenas para teste
+        this.notification.error('Sessão expirada. Faça login novamente.'); // comentado apenas para teste
+         this.onLogout(); // comentado apenas para teste
       }
     });
   }
 
-  onLogout() {
-    this.http.post(this.apiUrl + '/auth/clientes/logout', {}, {
-    }).subscribe({
+onLogout() {
+  this.http.post(this.apiUrl + '/auth/clientes/logout', {}, {
+    withCredentials: true
+  }).pipe(
+    finalize(() => {
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.removeItem('auth_token');
+          
+
+        }
+        if (this.refreshTimer) {
+          clearTimeout(this.refreshTimer);
+        }
+
+        this.router.navigateByUrl(this.routeComponent['Home']);
+      })
+    ).subscribe({
       next: () => {
-        this.accessToken = null; // Limpa da memória
-        if (this.refreshTimer) {
-          clearTimeout(this.refreshTimer);
-        }
-        this.notification.success('Logout realizado.');
-        this.router.navigateByUrl(this.routeComponent['Home']);
-      },
-      error: (error) => {
-        // Mesmo com erro, limpa localmente
-        this.accessToken = null;
-        if (this.refreshTimer) {
-          clearTimeout(this.refreshTimer);
-        }
-        this.router.navigateByUrl(this.routeComponent['Home']);
+        // Opcional: Mostrar uma notificação se o logout no servidor funcionou
+       console.log('Logout realizado com sucesso.');
       }
     });
   }
+
 
   // Método para verificar se está logado
   isLoggedIn(): boolean {
-    return this.accessToken !== null;
+    return this.getAccessToken() !== null;
   }
 
-  /* 
+  // acho q  nao esta funcionando
   // TODO: Implementar refresh automático depois
   private startRefreshTimer(expiresIn: number): void {
     // Renova 1 minuto antes de expirar
     const refreshTime = (expiresIn - 60) * 1000;
-    
+  console.log(`[Auth Timer] Agendando renovação para daqui a ${refreshTime / 1000} segundos.`);
+
+  
     this.refreshTimer = setTimeout(() => {
+          console.log('[Auth Timer] Tempo esgotado! Disparando onRefreshToken() agora.');
+
       this.onRefreshToken();
     }, refreshTime);
   }
-  */
+  
+  initiateSessionCheck(): void {
+    // Só execute esta lógica no navegador
+    if (isPlatformBrowser(this.platformId)) {
+      const token = this.getAccessToken();
 
+      if (token) {
+        console.log('Token encontrado. Tentando renovar a sessão...');
+        this.onRefreshToken();
+      }
+    }
+  }
 
-  /*
+  /* não to usando por enquanto.
   // Refresh automático - renova 1 minuto antes de expirar
   private startRefreshTimer(expiresIn: number): void {
     // Limpa timer anterior se existir

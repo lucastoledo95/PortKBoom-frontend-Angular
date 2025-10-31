@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:portKBoom-front": "node dist/portKBoom-front/server/server.mjs",
-    "serve": "ng serve --host=portkboomfront.test --port=8090"
+    "serve": "ng serve --host=app.portkboom.localhost --port=8090"
   },
   "prettier": {
     "overrides": [

@@ -4,21 +4,19 @@ import { ApiMaster } from '../services/api-master';
 
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   const apiMaster = inject(ApiMaster);
-  
-  // Sempre adiciona withCredentials para cookies
-  let authReq = req.clone({
-    withCredentials: true
-  });
+  const token = apiMaster.getAccessToken(); 
 
-  // Se tem access token, adiciona Bearer
-  const token = apiMaster.getAccessToken();
+  
   if (token) {
-    authReq = authReq.clone({
-    // setHeaders: {
-     //   Authorization: `Bearer ${token}`
-    //  }
+    // Clona a requisição APENAS se existir um token, e adiciona o cabeçalho
+    const authReq = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`
+      }
     });
+    return next(authReq);
   }
 
-  return next(authReq);
+  // Se não houver token, passa a requisição original
+  return next(req);
 };

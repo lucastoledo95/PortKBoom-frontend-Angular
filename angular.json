@@ -71,8 +71,8 @@
             "options": {
               "port": 8090,
               "ssl": true,
-              "sslCert": "portkboomfront.test.pem",
-              "sslKey": "portkboomfront.test-key.pem"
+              "sslCert": "app.portkboom.localhost.pem",
+              "sslKey": "app.portkboom.localhost-key.pem"
             }
         },
         "extract-i18n": {
