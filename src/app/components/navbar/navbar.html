@@ -30,9 +30,10 @@
         <div class="flex items-center md:ms-2">
 
           <!-- Bloco: Usuário NÃO autenticado -->
-          <!--@if (!auth.isLoggedIn()) { -->
+          @if (!api.isLoggedIn()) {
+
           <div class="md:w-38 text-neutral-100 md:text-sm inline-flex">
-            <a routerLink="login" >
+            <a routerLink="login">
               <div>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-9">
                   <path fill-rule="evenodd"
@@ -44,42 +45,50 @@
             <div class="hidden md:block">
               Olá, <a routerLink="login" [class]="authLinkClass">Entre</a> ou
               <a routerLink="cadastro" [class]="authLinkClass">Cadastre-se</a>
-    
+
 
             </div>
           </div>
-          <!-- } -->
 
+          }
           <!-- Bloco: Usuário autenticado -->
-          <!-- @if (auth.isLoggedIn()) {
-           
+          @else {
+          @if( api.user){
           <div class="relative ms-3">
             <span class="inline-flex rounded-md">
 
-              
-            <button data-dropdown-toggle="user-dropdown" class="flex items-center rounded-full border-2 border-transparent text-sm transition focus:border-gray-300/30 focus:outline-none">
-              <img class="size-10 rounded-full object-cover"  [src]="profileDefaultUrl"  " alt="profile_photo" />
-              <span class="items-center rounded-md border border-transparent px-3 py-2 text-sm font-medium leading-4 text-gray-400 transition duration-150 ease-in-out hover:text-gray-200  hidden md:inline-flex dark:bg-transparent ">
-                Olá, {{ auth.user.name.split(' ')[0] }} !
-                <svg class="-me-0.5 ms-2 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                </svg>
-              </span>
-            </button>
+
+              <button (click)="toggleUserDropdown($event)"
+                class="flex items-center rounded-full border-2 border-transparent text-sm transition focus:border-gray-300/30 focus:outline-none">
+                <img class="size-10 rounded-full object-cover" [src]="profileDefaultUrl" alt="profile_photo" />
+                <span
+                  class="items-center rounded-md border border-transparent px-3 py-2 text-sm font-medium leading-4 text-gray-400 transition duration-150 ease-in-out hover:text-gray-200  hidden md:inline-flex dark:bg-transparent ">
+                 Olá, {{ api.user.name | titlecase | slice:0:8}}
+                  <svg class="-me-0.5 ms-2 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </span>
+              </button>
 
             </span>
-            
-            <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-md bg-zinc-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-              <a routerLink="dashboard" [class]="dropdownItemClass">Gerenciar Conta</a>
+
+            <div id="dropdown" [class.hidden]="!isUserDropdownOpen"
+              class=" absolute right-0 mt-2 w-48 rounded-md bg-zinc-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+              <a routerLink="/minha-conta" [class]="dropdownItemClass">Gerenciar Conta</a>
               <a routerLink="/profile" [class]="dropdownItemClass">Perfil</a>
               <a routerLink="/logout" [class]="dropdownItemClass">Sair</a>
             </div>
           </div>
-          } -->
+            }
+          }
+
 
         </div>
 
-        <button #collapseBtn data-collapse-toggle="navbar-sticky" type="button"
+        <button #collapseBtn
+  (click)="toggleMobileMenu()"
+  type="button" 
           class="inline-flex h-10 w-10 items-center justify-center rounded-lg p-2 text-sm font-bold text-gray-200 md:hidden"
           aria-controls="navbar-sticky" aria-expanded="false">
           <span class="sr-only">Abrir menu</span>

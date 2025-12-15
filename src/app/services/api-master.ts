@@ -49,7 +49,10 @@ export class ApiMaster {
   logoUrl = `${this.urlBase}/storage/logos/logo.png`;
   profileDefaultUrl = `${this.urlBase}/storage/logos/logo-profile.png`;
   bannerLoginUrl = `${this.urlBase}/storage/logos/banner-login.png`;
-  
+
+user: any = null;
+
+
 
   // Método para pegar o token do localStorage no SSR do angular
   getAccessToken(): string | null {
@@ -68,7 +71,7 @@ export class ApiMaster {
     this.http.get(this.apiUrl + '/user', {
     }).subscribe({
       next: (response) => {
-   
+        this.user = response;
         console.log('User data:', response);
 
       },
@@ -91,12 +94,13 @@ export class ApiMaster {
     }).subscribe({
       next: (response) => {
         if (response.ok) {
+          
           if (isPlatformBrowser(this.platformId)) {
 
           // salva o access token no localStorage
           localStorage.setItem('auth_token', response.access_token);
-
           this.notification.success('Login realizado.'); 
+          this.getUser();
           this.router.navigateByUrl(this.routeComponent['Dashboard'])
           
           // Inicia refresh automático
@@ -129,6 +133,7 @@ export class ApiMaster {
           if (isPlatformBrowser(this.platformId)) {
           // atualiza o novo access token no localStorage
           localStorage.setItem('auth_token', response.access_token);
+         
           this.notification.success('Sessão renovada.');
   
           console.log('Token renovado com sucesso:', response.access_token);
@@ -138,7 +143,7 @@ export class ApiMaster {
           this.startRefreshTimer(response.expires_in);
 
           }
-         
+          this.getUser();
         } else {
           this.notification.error('Erro ao renovar token.');
            console.log('Erro ao renovar token:');
@@ -206,6 +211,8 @@ onLogout() {
       if (token) {
         console.log('Token encontrado. Tentando renovar a sessão...');
         this.onRefreshToken();
+        
+        
       }
     }
   }

@@ -10,7 +10,9 @@ import { ApiMaster } from '../../services/api-master';
 })
 export class Home {
   private readonly titleService = inject(TitleDynamicService);
- // api = inject(ApiMaster)
+  private ApiMaster = inject(ApiMaster);
+
+  api = this.ApiMaster;
   constructor(
 
   ) {
