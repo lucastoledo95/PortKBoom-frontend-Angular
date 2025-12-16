@@ -78,7 +78,7 @@ user: any = null;
       error: (error) => {
         // refresh apenas se o erro for 401 (negado)
         if (error.status === 401) {
-          console.log('Token de acesso inválido ou expirado. Tentando renovar...');
+       // console.log('Token de acesso inválido ou expirado. Tentando renovar...');
           this.onRefreshToken();
         } else {
           console.error('Erro ao buscar usuário:', error);
@@ -134,9 +134,9 @@ user: any = null;
           // atualiza o novo access token no localStorage
           localStorage.setItem('auth_token', response.access_token);
          
-          this.notification.success('Sessão renovada.');
+          //this.notification.success('Sessão renovada.');
   
-          console.log('Token renovado com sucesso:', response.access_token);
+          //console.log('Token renovado com sucesso:', response.access_token);
         
          
           // Reinicia timer automático
@@ -145,42 +145,57 @@ user: any = null;
           }
           this.getUser();
         } else {
-          this.notification.error('Erro ao renovar token.');
-           console.log('Erro ao renovar token:');
-          this.onLogout(); // comentado apenas para teste
+          //this.notification.error('Erro ao renovar token.');
+           //console.log('Erro ao renovar token:');
+          this.onLogout();
         }
       },
       error: (error) => {
-        console.error('Erro no refresh:', error);
-        this.notification.error('Sessão expirada. Faça login novamente.'); // comentado apenas para teste
-         this.onLogout(); // comentado apenas para teste
+       // console.error('Erro no refresh:', error);
+        this.notification.error('Sessão expirada. Faça login novamente.'); 
+         this.onLogout();
       }
     });
   }
 
 onLogout() {
-  this.http.post(this.apiUrl + '/auth/clientes/logout', {}, {
-    withCredentials: true
-  }).pipe(
-    finalize(() => {
+  let headers = {};
+
+  if (isPlatformBrowser(this.platformId)) {
+    const token = localStorage.getItem('auth_token');
+
+    if (token) {
+      headers = {
+        Authorization: `Bearer ${token}`,
+      };
+    }
+  }
+
+  this.http.post(this.apiUrl + '/auth/clientes/sair', {}, {
+        headers,
+        withCredentials: true,
+      }
+    )
+    .pipe(
+      finalize(() => {
         if (isPlatformBrowser(this.platformId)) {
           localStorage.removeItem('auth_token');
-          
-
         }
+
         if (this.refreshTimer) {
           clearTimeout(this.refreshTimer);
         }
-
-        this.router.navigateByUrl(this.routeComponent['Home']);
       })
-    ).subscribe({
+    )
+    .subscribe({
       next: () => {
-        // Opcional: Mostrar uma notificação se o logout no servidor funcionou
-       console.log('Logout realizado com sucesso.');
-      }
+        // logout ok
+      },
+      error: () => {
+        // mesmo se der erro, o finalize limpa tudo
+      },
     });
-  }
+}
 
 
   // Método para verificar se está logado
@@ -192,12 +207,12 @@ onLogout() {
   // TODO: Implementar refresh automático depois
   private startRefreshTimer(expiresIn: number): void {
     // Renova 1 minuto antes de expirar
-    const refreshTime = (expiresIn - 60) * 1000;
-  console.log(`[Auth Timer] Agendando renovação para daqui a ${refreshTime / 1000} segundos.`);
+    const refreshTime = (expiresIn - 60) * 1000; // recebe do back end 15minutos, e em 14 minutos reatualizado o novo token
+  //console.log(`[Auth Timer] Agendando renovação para daqui a ${refreshTime / 1000} segundos.`);
 
   
     this.refreshTimer = setTimeout(() => {
-          console.log('[Auth Timer] Tempo esgotado! Disparando onRefreshToken() agora.');
+  //console.log('[Auth Timer] Tempo esgotado! Disparando onRefreshToken() agora.');
 
       this.onRefreshToken();
     }, refreshTime);
@@ -209,10 +224,8 @@ onLogout() {
       const token = this.getAccessToken();
 
       if (token) {
-        console.log('Token encontrado. Tentando renovar a sessão...');
+       // console.log('Token encontrado. Tentando renovar a sessão...');
         this.onRefreshToken();
-        
-        
       }
     }
   }
