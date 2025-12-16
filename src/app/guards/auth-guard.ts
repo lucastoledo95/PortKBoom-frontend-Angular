@@ -34,5 +34,5 @@ export const authGuardLogout: CanActivateFn = (route, state) => {
       apiMaster.onLogout();
       router.navigate(['/']); 
 
- return true;
+ return false;
 };
