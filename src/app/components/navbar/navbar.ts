@@ -5,7 +5,6 @@ import {
   ViewChild,
   Inject,
   PLATFORM_ID,
-  Renderer2,
   inject,
 } from '@angular/core';
 
@@ -73,13 +72,14 @@ export class Navbar implements AfterViewInit {
 
   constructor(
     public theme: ThemeDarkService,
-    private renderer: Renderer2,
     private elRef: ElementRef,
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.theme.initTheme();
   }
+
+
 
   toggleUserDropdown(event?: MouseEvent) {
     event?.stopPropagation();
@@ -148,14 +148,9 @@ export class Navbar implements AfterViewInit {
   });
 
 
-    // Funções de Transição de Navbar com Scroll
-    function wait(ms: number) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
 
     let lastScrollTop = 0;
     let isHidden = false;
-    let isTransitioning = false;
 
     const navbar = this.headerNavbar.nativeElement;
     const anchor = this.navAnchor.nativeElement;
@@ -165,36 +160,6 @@ export class Navbar implements AfterViewInit {
     anchor.style.height = `${navbarHeight}px`;
 
     let ticking = false;
-
-    const showNavbar = async () => {
-      isTransitioning = true;
-
-      navbar.classList.remove('-translate-y-full');
-      navbar.classList.add('translate-y-0');
-
-      anchor.classList.remove('opacity-0', 'invisible', 'pointer-events-none');
-      anchor.classList.add('opacity-100', 'visible', 'pointer-events-auto');
-
-      await wait(300);
-
-      isHidden = false;
-      isTransitioning = false;
-    };
-
-    const hideNavbar = async () => {
-      isTransitioning = true;
-
-      navbar.classList.add('-translate-y-full');
-      navbar.classList.remove('translate-y-0');
-
-      anchor.classList.add('opacity-0', 'invisible', 'pointer-events-none');
-      anchor.classList.remove('opacity-100', 'visible', 'pointer-events-auto');
-
-      await wait(300);
-
-      isHidden = true;
-      isTransitioning = false;
-    };
 
 const handleScroll = async () => {
   const currentScroll =
@@ -213,7 +178,7 @@ const handleScroll = async () => {
   this.closeAllMenus();
 
   // DESCENDO → ESCONDE NAVBAR
-  if (diff > 5 && !isHidden) {
+  if (diff > 2 && !isHidden) { // tick para esconder 
     navbar.classList.add('-translate-y-full');
     navbar.classList.remove('translate-y-0');
 
@@ -232,7 +197,7 @@ const handleScroll = async () => {
   }
 
   // SUBINDO → MOSTRA NAVBAR
-  if (diff < -5 && isHidden) {
+  if (diff < -2 && isHidden) { // tick para voltar 
     navbar.classList.remove('-translate-y-full');
     navbar.classList.add('translate-y-0');
 

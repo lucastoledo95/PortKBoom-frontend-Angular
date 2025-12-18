@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ApiMaster, LoginDados } from '../../../services/api-master';
 import { RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { validatorLogin } from '../../../utils/validator-login';
+import { validatorLogin } from '../../../utils/validators';
 import { TitleDynamicService } from '../../../services/title-dynamic.service';
 import { NotificationService } from '../../../services/notification.service';
 import { RecaptchaModule } from 'ng-recaptcha';
@@ -23,6 +23,8 @@ export class Login implements OnInit {
   ApiMaster = inject(ApiMaster);
   logo = this.ApiMaster.logoUrl;
   banner = this.ApiMaster.bannerLoginUrl;
+
+showPassword = false;
 
   formLogin = new FormGroup({
     login: new FormControl('', [
@@ -82,7 +84,9 @@ export class Login implements OnInit {
     this.ApiMaster.onLogin(dados)
   }
 
-
+togglePassword() {
+  this.showPassword = !this.showPassword;
+}
 
 
 }

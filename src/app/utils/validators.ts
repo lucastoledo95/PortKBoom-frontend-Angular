@@ -90,5 +90,29 @@ export const validatorLogin = {
 
       return { loginInvalido: true };
     };
-  }
+  },
+
+  cpfOuCnpj: (): ValidatorFn => {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const val = control.value?.toString().trim();
+    if (!val) return null;
+
+    // só números
+    if (!/^\d+$/.test(val)) {
+      return { apenasNumeros: true };
+    }
+
+    if (val.length === 11) {
+      return validarCPF(val) ? null : { cpfInvalido: true };
+    }
+
+    if (val.length === 14) {
+      return validarCNPJ(val) ? null : { cnpjInvalido: true };
+    }
+
+    return { tamanhoInvalido: true };
+  };
+},
+
 };
+
