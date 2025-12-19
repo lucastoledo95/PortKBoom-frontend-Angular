@@ -26,7 +26,6 @@ export class Navbar implements AfterViewInit {
 
   api = this.ApiMaster;
   logo = this.ApiMaster.logoUrl;
-  profileDefaultUrl = this.ApiMaster.profileDefaultUrl;
 
   isUserDropdownOpen = false;
 
@@ -44,7 +43,7 @@ export class Navbar implements AfterViewInit {
     md:active:text-orange-500`;
 
   readonly authLinkClass =
-    'text-white font-bold hover:bg-zinc-900 hover:text-amber-600 active:bg-zinc-900 active:text-orange-500 md:text-white md:hover:bg-zinc-900 md:hover:text-amber-600 md:active:bg-zinc-900 md:active:text-orange-500';
+    'text-white font-bold hover:bg-zinc-900 hover:text-amber-600 active:bg-zinc-900 active:text-orange-500 md:text-white md:hover:bg-zinc-900 md:hover:text-amber-600 md:active:bg-zinc-900 md:active:text-orange-500 ';
 
   readonly dropdownItemClass =
     'block px-4 py-2 text-sm text-white hover:bg-zinc-700';
@@ -79,7 +78,10 @@ export class Navbar implements AfterViewInit {
     this.theme.initTheme();
   }
 
-
+getFirstName(name?: string): string {
+  if (!name) return '';
+  return name.trim().split(' ')[0];
+}
 
   toggleUserDropdown(event?: MouseEvent) {
     event?.stopPropagation();
@@ -197,7 +199,7 @@ const handleScroll = async () => {
   }
 
   // SUBINDO → MOSTRA NAVBAR
-  if (diff < -2 && isHidden) { // tick para voltar 
+  if (diff < -1 && isHidden) { // tick para voltar 
     navbar.classList.remove('-translate-y-full');
     navbar.classList.add('translate-y-0');
 

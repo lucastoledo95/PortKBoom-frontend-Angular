@@ -12,17 +12,53 @@
 
                 <form [formGroup]="formRegister" (ngSubmit)="onSubmit()">
 
+                    <!-- TIPO PESSOA -->
+                    <div class="mt-1">
+                    <select
+                        formControlName="tipo_pessoa"
+                        class="mt-1 block w-full h-9 dark:bg-gray-950 dark:text-white shadow-sm rounded-sm"
+                    >
+                        <option value="">Selecione o tipo de pessoa *</option>
+                        <option value="pf">Pessoa Física</option>
+                        <option value="pj">Pessoa Jurídica</option>
+                    </select>
+
+                    @if (formRegister.controls['tipo_pessoa'].touched) {
+                        @if (formRegister.controls['tipo_pessoa'].errors?.['required']) {
+                        <span class="text-red-500 ml-2">
+                            Obrigatório selecionar o tipo de pessoa.
+                        </span>
+                        }
+                    }
+                    </div>
+
                     <!-- NOME -->
                     <div>
-                        <input type="text" formControlName="name" placeholder=" Nome completo *"
-                            class="mt-1 block w-full h-9 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
+                        <input type="text" formControlName="name"
+                            [placeholder]=" formRegister.value.tipo_pessoa === 'pj'        ? 'Razão Social *'        : 'Nome completo *'    "
+                            class="mt-4 block w-full h-9 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
                         @if (formRegister.controls['name'].touched) {
+
                         @if (formRegister.controls['name'].errors?.['required']) {
-                        <span class="text-red-500 ml-2">Nome é obrigatório.</span>
+                        <span class="text-red-500 ml-2">
+                            @if (formRegister.value.tipo_pessoa === 'pj') {
+                            Razão Social é obrigatório.
+                            } @else {
+                            Nome completo é obrigatório.
+                            }
+                        </span>
                         }
+
                         @if (formRegister.controls['name'].errors?.['minlength']) {
-                        <span class="text-red-500 ml-2">Mínimo 8 caracteres.</span>
+                        <span class="text-red-500 ml-2">
+                            @if (formRegister.value.tipo_pessoa === 'pj') {
+                            Nome fantasia deve ter no mínimo 8 caracteres.
+                            } @else {
+                            Nome completo deve ter no mínimo 8 caracteres.
+                            }
+                        </span>
                         }
+
                         }
                     </div>
 
@@ -46,36 +82,47 @@
 
                     </div>
 
-                    <!-- TIPO PESSOA -->
-                    <div class="mt-4">
-                        <select formControlName="tipo_pessoa"
-                            class="mt-1 block w-full h-9 dark:bg-gray-950 dark:text-white shadow-sm rounded-sm">
-                            <option value="pf"> Pessoa Física *</option>
-                            <option value="pj"> Pessoa Jurídica *</option>
-                        </select>
-                    </div>
-
                     <!-- CPF / CNPJ -->
                     <div class="mt-4">
                         <input type="text" formControlName="cpf_cnpj" inputmode="numeric" pattern="[0-9]*"
-                            maxlength="14" placeholder=" CPF ou CNPJ *"
+                            [maxlength]="formRegister.controls['tipo_pessoa'].value === 'pj' ? 14 : 11"
+                            [placeholder]="formRegister.value.tipo_pessoa === 'pj' ? 'CNPJ *' : 'CPF *'"
                             class="mt-1 block w-full h-9 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
+
                         @if (formRegister.controls['cpf_cnpj'].touched) {
                         @if (formRegister.controls['cpf_cnpj'].errors?.['required']) {
-                        <span class="text-red-500 ml-2">CPF ou CNPJ é obrigatório.</span>
+                        <span class="text-red-500 ml-2">
+                            @if (formRegister.value.tipo_pessoa === 'pj') {
+                            CNPJ é obrigatório.
+                            } @else {
+                            CPF é obrigatório.
+                            }
+                        </span>
                         }
                         @if (formRegister.controls['cpf_cnpj'].errors?.['apenasNumeros']) {
                         <span class="text-red-500 ml-2">Use apenas números.</span>
                         }
-                        @if (formRegister.controls['cpf_cnpj'].errors?.['cpfInvalido']) {
+                        @if (
+                        formRegister.controls['cpf_cnpj'].errors?.['cpfInvalido']
+                        && formRegister.value.tipo_pessoa === 'pf'
+                        ) {
                         <span class="text-red-500 ml-2">CPF inválido.</span>
                         }
-                        @if (formRegister.controls['cpf_cnpj'].errors?.['cnpjInvalido']) {
+
+                        @if (
+                        formRegister.controls['cpf_cnpj'].errors?.['cnpjInvalido']
+                        && formRegister.value.tipo_pessoa === 'pj'
+                        ) {
                         <span class="text-red-500 ml-2">CNPJ inválido.</span>
                         }
+
                         @if (formRegister.controls['cpf_cnpj'].errors?.['tamanhoInvalido']) {
                         <span class="text-red-500 ml-2">
-                            Informe um CPF (11) ou CNPJ (14) válido.
+                            @if (formRegister.value.tipo_pessoa === 'pj') {
+                            CNPJ deve conter 14 números.
+                            } @else {
+                            CPF deve conter 11 números.
+                            }
                         </span>
                         }
 
@@ -124,8 +171,8 @@
                     <div class="mt-4">
                         <input type="password" formControlName="password_confirmation" placeholder=" Confirmar senha *"
                             class="mt-1 block w-full h-9 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
-                        @if (formRegister.errors?.['senhasDiferentes']
-                        && formRegister.controls['password_confirmation'].touched) {
+                        @if (formRegister.errors?.['senhasDiferentes'] &&
+                        formRegister.controls['password_confirmation'].touched) {
                         <span class="text-red-500 ml-2">
                             As senhas não conferem.
                         </span>
@@ -135,7 +182,8 @@
                     <!-- BOTÃO -->
                     <div class="mt-6">
                         <button type="submit" [disabled]="!formRegister.valid"
-                            class="w-full rounded-sm bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
+                            class="w-full rounded-sm bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700
+                             transition  active:scale-94   hover:text-gray-700   dark:hover:text-gray-300">
                             Criar conta
                         </button>
                     </div>
@@ -144,7 +192,8 @@
                     <div class="mt-6">
                         <hr class="w-full h-px border-0 bg-gray-200 dark:bg-gray-700 rounded">
                         <a routerLink="../login"
-                            class="w-full mt-4 inline-flex justify-center rounded-sm bg-orange-600/90 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-indigo-50 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                            class="w-full mt-4 inline-flex justify-center rounded-sm bg-orange-600/90 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-indigo-50 focus:ring-offset-2 dark:focus:ring-offset-gray-800
+                             transition  active:scale-94   hover:text-gray-700   dark:hover:text-gray-300">
                             Já tem conta? Faça login
                         </a>
                     </div>

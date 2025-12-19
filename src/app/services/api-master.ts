@@ -71,7 +71,6 @@ export class ApiMaster {
   urlBase = 'https://api.portkboom.localhost/';
 
   logoUrl = `${this.urlBase}/storage/logos/logo.png`;
-  profileDefaultUrl = `${this.urlBase}/storage/logos/logo-profile.png`;
   bannerLoginUrl = `${this.urlBase}/storage/logos/banner-login.png`; // fazer a na db a config de promo no login via painel
 
   user: any = null;
@@ -234,7 +233,7 @@ export class ApiMaster {
     { withCredentials: true }
   ).subscribe({  next: (response) => {
       if (!response.ok) {
-        this.notification.error('Erro ao realizar cadastro.');
+        this.notification.error('Erro ao realizar cadastro 404.');
         return;
       }
       if (!isPlatformBrowser(this.platformId)) {
@@ -243,12 +242,12 @@ export class ApiMaster {
 
       localStorage.setItem('auth_token', response.access_token);
       this.notification.success('Cadastro realizado com sucesso.');
-      // 👤 atualiza usuário logado
+      // atualiza usuário logado
       this.getUser();
       // ⏱ inicia refresh automático
       this.startRefreshTimer(response.expires_in);
 
-      // 🔁 redireciona para a página que o usuário estava
+      // redireciona para a página que o usuário estava
       const target = this.redirect.get() || '/';
       this.redirect.clear();
       this.router.navigateByUrl(target);
@@ -257,7 +256,7 @@ export class ApiMaster {
     error: (error) => {
       if (error.status === 422 && error.error?.errors) {
         const erros = Object.values(error.error.errors).flat();
-        this.notification.error(erros.join('\n'));
+        this.notification.error(erros.join('<br>'),5000, { html: true });
       }
       else if (error.status === 401 || error.status === 500) {
         this.notification.error(

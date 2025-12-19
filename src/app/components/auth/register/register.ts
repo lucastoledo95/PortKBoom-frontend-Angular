@@ -22,60 +22,60 @@ export class Register implements OnInit {
   logo = this.ApiMaster.logoUrl;
   banner = this.ApiMaster.bannerLoginUrl;
 
-formRegister = new FormGroup({
+  formRegister = new FormGroup({
 
-  name: new FormControl('', [
-    Validators.required,
-    Validators.minLength(8),
-    Validators.maxLength(100),
-  ]),
+    name: new FormControl('', [
+      Validators.required,
+      Validators.minLength(8),
+      Validators.maxLength(100),
+    ]),
 
-email: new FormControl('', [
-  Validators.required,
-  validatorLogin.email(),
-]),
+    email: new FormControl('', [
+      Validators.required,
+      validatorLogin.email(),
+    ]),
 
-  tipo_pessoa: new FormControl<'pf' | 'pj'>('pf', [
-    Validators.required,
-  ]),
+    tipo_pessoa: new FormControl<'pf' | 'pj' | ''>('', [
+      Validators.required,
+    ]),
 
-  cpf_cnpj: new FormControl('', [
-    Validators.required,
-    validatorLogin.cpfOuCnpj(),
-  ]),
+    cpf_cnpj: new FormControl('', [
+      Validators.required,
+      validatorLogin.cpfOuCnpj(),
+    ]),
 
-  telefone: new FormControl('', [
-    Validators.required,
-    Validators.pattern(/^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/),
-  ]),
+    telefone: new FormControl('', [
+      Validators.required,
+      Validators.pattern(/^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/),
+    ]),
 
-  inscricao_estadual: new FormControl('', []),
+    inscricao_estadual: new FormControl('', []),
 
-  password: new FormControl('', [
-    Validators.required,
-    Validators.pattern(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
-    ),
-  ]),
+    password: new FormControl('', [
+      Validators.required,
+      Validators.pattern(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
+      ),
+    ]),
 
-  password_confirmation: new FormControl('', [
-    Validators.required,
-  ]),
+    password_confirmation: new FormControl('', [
+      Validators.required,
+    ]),
 
-}, {
-  validators: this.passwordsIguaisValidator
-});
+  }, {
+    validators: this.passwordsIguaisValidator
+  });
 
-passwordsIguaisValidator(group: AbstractControl) {
-  const password = group.get('password')?.value;
-  const confirm = group.get('password_confirmation')?.value;
+  passwordsIguaisValidator(group: AbstractControl) {
+    const password = group.get('password')?.value;
+    const confirm = group.get('password_confirmation')?.value;
 
-  if (!password || !confirm) return null;
+    if (!password || !confirm) return null;
 
-  return password === confirm
-    ? null
-    : { senhasDiferentes: true };
-}
+    return password === confirm
+      ? null
+      : { senhasDiferentes: true };
+  }
 
   ngOnInit(): void {
     this.title.set('Cadastro');
@@ -87,13 +87,20 @@ passwordsIguaisValidator(group: AbstractControl) {
       this.notification.error('Informações incorretas.');
       return;
     }
+    
+  const value = this.formRegister.value;
+
+  if (value.tipo_pessoa !== 'pf' && value.tipo_pessoa !== 'pj') {
+    this.notification.error('Selecione o tipo de pessoa.');
+    return;
+  }
 
     const dados = {
       name: this.formRegister.value.name!,
       email: this.formRegister.value.email!,
       password: this.formRegister.value.password!,
       password_confirmation: this.formRegister.value.password_confirmation!,
-      tipo_pessoa: this.formRegister.value.tipo_pessoa!,
+      tipo_pessoa: value.tipo_pessoa,
       cpf_cnpj: this.formRegister.value.cpf_cnpj!,
       telefone: this.formRegister.value.telefone!,
       inscricao_estadual: this.formRegister.value.inscricao_estadual || ''

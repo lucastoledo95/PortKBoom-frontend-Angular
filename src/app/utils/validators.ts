@@ -32,11 +32,11 @@ function validarCNPJ(cnpj: string): boolean {
 
   return validDV1 === +cnpj[12] && validDV2 === +cnpj[13];
 }
+const emailFormato =
+  /^[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
 
 export const validatorLogin = {
   email: (): ValidatorFn => {
-    const emailFormato =
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     return (control: AbstractControl): ValidationErrors | null => {
       const val = control.value;
       if (!val) return null;
@@ -63,9 +63,6 @@ export const validatorLogin = {
   },
 
   campoLogin: (): ValidatorFn => {
-    const emailFormato =
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
-
     return (control: AbstractControl): ValidationErrors | null => {
       const val = control.value?.toString().trim();
       if (!val) return null;
