@@ -27,7 +27,7 @@ export class Register implements OnInit {
   ngOnInit(): void {
     this.title.set('Cadastro');
 
-    // 1) Criar grupo primeiro
+
     this.formRegister = new FormGroup({
       name: new FormControl('', [
         Validators.required,
@@ -75,7 +75,7 @@ export class Register implements OnInit {
       validatorLogin.cpfOuCnpj(() => this.formRegister.controls['tipo_pessoa'].value)
     );
 
-    // Revalidar CPF/CNPJ quando o tipo mudar
+    // revalidar CPF/CNPJ quando o tipo mudar
     this.formRegister.controls['tipo_pessoa'].valueChanges.subscribe(() => {
       this.formRegister.controls['cpf_cnpj'].updateValueAndValidity();
     });

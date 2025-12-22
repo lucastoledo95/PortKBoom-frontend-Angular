@@ -126,6 +126,14 @@
                         </span>
                         }
 
+                        @if (formRegister.controls['cpf_cnpj'].errors?.['naoselecionado']) {
+                        <span class="text-red-500 ml-2">
+                            @if (formRegister.value.tipo_pessoa === '') {
+                            Selecione o tipo de pessoa.
+                            } 
+                        </span>
+                        }
+
                         }
                     </div>
 

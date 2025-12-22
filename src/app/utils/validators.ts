@@ -113,7 +113,7 @@ cpfOuCnpj: (getTipoPessoa: () => string): ValidatorFn => {
       return validarCNPJ(val) ? null : { cnpjInvalido: true };
     }
 
-    return null;
+   return { naoselecionado : true };
   };
 },
 
