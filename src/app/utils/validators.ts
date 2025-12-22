@@ -89,33 +89,45 @@ export const validatorLogin = {
     };
   },
 
-cpfOuCnpj: (getTipoPessoa: () => string): ValidatorFn => {
-  return (control: AbstractControl): ValidationErrors | null => {
+  cpfOuCnpj: (getTipoPessoa: () => string): ValidatorFn => {
+    return (control: AbstractControl): ValidationErrors | null => {
 
-    const tipo = getTipoPessoa()?.toLowerCase();
-    const val = control.value?.toString().trim();
-    if (!val) return null;
+      const tipo = getTipoPessoa()?.toLowerCase();
+      const val = control.value?.toString().trim();
+      if (!val) return null;
 
-    // Só números
-    if (!/^\d+$/.test(val)) {
-      return { apenasNumeros: true };
-    }
+      // Só números
+      if (!/^\d+$/.test(val)) {
+        return { apenasNumeros: true };
+      }
 
-    // PF → espera 11 dígitos
-    if (tipo === 'pf') {
-      if (val.length !== 11) return { tamanhoInvalido: true };
-      return validarCPF(val) ? null : { cpfInvalido: true };
-    }
+      // PF → espera 11 dígitos
+      if (tipo === 'pf') {
+        if (val.length !== 11) return { tamanhoInvalido: true };
+        return validarCPF(val) ? null : { cpfInvalido: true };
+      }
 
-    // PJ → espera 14 dígitos
-    if (tipo === 'pj') {
-      if (val.length !== 14) return { tamanhoInvalido: true };
-      return validarCNPJ(val) ? null : { cnpjInvalido: true };
-    }
+      // PJ → espera 14 dígitos
+      if (tipo === 'pj') {
+        if (val.length !== 14) return { tamanhoInvalido: true };
+        return validarCNPJ(val) ? null : { cnpjInvalido: true };
+      }
 
-   return { naoselecionado : true };
-  };
-},
+      return { naoselecionado: true };
+    };
+  },
+
+  dataNascimento(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const val = (control.value || '').trim();
+      if (!val) return null;
+
+      // Regex formato DD/MM/YYYY
+      const regex = /^([0-2]\d|3[0-1])\/(0\d|1[0-2])\/(19|20)\d{2}$/;
+
+      return regex.test(val) ? null : { formatoInvalido: true };
+    };
+  }
 
 };
 

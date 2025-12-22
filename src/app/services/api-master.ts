@@ -1,6 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID, EventEmitter  } from '@angular/core';
 import { NotificationService } from '../services/notification.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable, map, catchError, of } from 'rxjs';
@@ -10,14 +10,14 @@ import { RedirectLogin } from './redirectLogin';
 export interface LoginDados {
   login: string;
   password: string;
-  // recaptcha_token: string;
+  recaptcha_token: string;
 }
 
 export interface retornoLoginAPI {
   ok: boolean;
   access_token: string;
   expires_in: number;
-  // recaptcha_token: string;
+  recaptcha_token: string;
 }
 
 export interface RegisterDados {
@@ -58,6 +58,8 @@ export class ApiMaster {
   private redirect = inject(RedirectLogin);
 
   private refreshTimer: any;
+
+  onLoginError: EventEmitter<void> = new EventEmitter();
 
 
   routeComponent: Record<string, string> = {
@@ -141,6 +143,8 @@ export class ApiMaster {
       },
 
       error: (error) => {
+        // envia  evento para o componente resetar o captcha
+        this.onLoginError.emit();
         if (error.status === 422 && error.error?.errors) {
           const erros = Object.values(error.error.errors).flat();
           this.notification.error(erros.join('\n'));
@@ -151,6 +155,7 @@ export class ApiMaster {
         } else {
           this.notification.error('Erro inesperado.');
         }
+
       }
     });
   }
@@ -211,7 +216,8 @@ export class ApiMaster {
       .pipe(
         finalize(() => {
           if (isPlatformBrowser(this.platformId)) {
-            localStorage.removeItem('auth_token');
+            localStorage.removeItem('auth_token'); 
+            localStorage.removeItem('_grecaptcha');
           }
 
           if (this.refreshTimer) {
@@ -254,6 +260,9 @@ export class ApiMaster {
     },
 
     error: (error) => {
+        // envia  evento para o componente resetar o captcha 
+        this.onLoginError.emit(); //reutilizei no register
+        
       if (error.status === 422 && error.error?.errors) {
         const erros = Object.values(error.error.errors).flat();
         this.notification.error(erros.join('<br>'),5000, { html: true });

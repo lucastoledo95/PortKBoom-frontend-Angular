@@ -14,29 +14,32 @@
 
                     <!-- TIPO PESSOA -->
                     <div class="mt-1">
-                    <select
-                        formControlName="tipo_pessoa"
-                        class="mt-1 block w-full h-9 dark:bg-gray-950 dark:text-white shadow-sm rounded-sm"
-                    >
-                        <option value="">Selecione o tipo de pessoa *</option>
-                        <option value="pf">Pessoa Física</option>
-                        <option value="pj">Pessoa Jurídica</option>
-                    </select>
+                        <select formControlName="tipo_pessoa" class="mt-1 block w-full h-9 dark:bg-gray-950 dark:text-white shadow-sm rounded-sm
+                            
+                                                   
+                            px-2  bg-white focus:outline-none  focus:ring-2 focus:ring-black dark:focus:ring-white  transition-all cursor-pointer  hover:shadow-md
+                            
+                            
+                            ">
+                            <option value="">Selecione o tipo de pessoa *</option>
+                            <option value="pf">Pessoa Física</option>
+                            <option value="pj">Pessoa Jurídica</option>
+                        </select>
 
-                    @if (formRegister.controls['tipo_pessoa'].touched) {
+                        @if (formRegister.controls['tipo_pessoa'].touched) {
                         @if (formRegister.controls['tipo_pessoa'].errors?.['required']) {
                         <span class="text-red-500 ml-2">
                             Obrigatório selecionar o tipo de pessoa.
                         </span>
                         }
-                    }
+                        }
                     </div>
 
                     <!-- NOME -->
                     <div>
                         <input type="text" formControlName="name"
                             [placeholder]=" formRegister.value.tipo_pessoa === 'pj'        ? 'Razão Social *'        : 'Nome completo *'    "
-                            class="mt-4 block w-full h-9 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
+                            class="mt-4 block w-full h-9  px-2 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
                         @if (formRegister.controls['name'].touched) {
 
                         @if (formRegister.controls['name'].errors?.['required']) {
@@ -64,30 +67,67 @@
 
                     <!-- EMAIL -->
                     <div class="mt-4">
-                        <input type="email" formControlName="email" placeholder=" E-mail *"
-                            class="mt-1 block w-full h-9 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
+                        <input type="email" formControlName="email" placeholder="E-mail *"
+                            class="mt-1 block w-full h-9  px-2 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
 
                         @if (formRegister.controls['email'].touched) {
                         @if (formRegister.controls['email'].errors?.['required']) {
                         <span class="mt-2 ml-2 text-red-500">
                             E-mail é obrigatório.
                         </span>
-                        }
-                        @if (formRegister.controls['email'].errors?.['emailInvalido']) {
+                        }@else if(formRegister.controls['email'].errors?.['emailInvalido']) {
                         <span class="mt-2 ml-2 text-red-500">
                             E-mail informado é inválido.
+                        </span>
+                        } @else {
+                        <span class="mt-1 ml-1 text-green-500 text-stroke-3">
+                            Será enviado e-mail de confirmação após o cadastro.
                         </span>
                         }
                         }
 
                     </div>
 
+                    <!-- DATA DE NASCIMENTO  -->
+                    @if (formRegister.controls['tipo_pessoa'].value === '' || formRegister.controls['tipo_pessoa'].value
+                    === 'pf') {
+                    <div class="mt-4">
+                        <input type="text" formControlName="data_nascimento" placeholder="Data de Nascimento *"
+                            maxlength="10" (input)="mascaraData($event)" minlength="10" autocomplete="off"
+                            class="mt-1 block w-full h-9  px-2 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
+
+                        @if (formRegister.controls['data_nascimento'].touched) {
+
+                        @if (formRegister.controls['data_nascimento'].errors?.['required']) {
+                        <span class="mt-2 ml-2 text-red-500">
+                            Data de nascimento é obrigatória para pessoas físicas.
+                        </span>
+                        }
+
+                        @if (formRegister.controls['data_nascimento'].errors?.['formatoInvalido']) {
+                        <span class="mt-2 ml-2 text-red-500">
+                            Use o formato DD/MM/YYYY.
+                        </span>
+                        }
+                        @if (formRegister.controls['tipo_pessoa'].value === ''){
+                        <span class="mt-2 ml-2 text-red-500">
+                            Selecione o tipo de pessoa.
+                        </span>
+                        }
+
+                        }
+                    </div>
+                    }
+
+
+
                     <!-- CPF / CNPJ -->
                     <div class="mt-4">
                         <input type="text" formControlName="cpf_cnpj" inputmode="numeric" pattern="[0-9]*"
+                            (input)="mascaraCpfCnpj($event)"
                             [maxlength]="formRegister.controls['tipo_pessoa'].value === 'pj' ? 14 : 11"
                             [placeholder]="formRegister.value.tipo_pessoa === 'pj' ? 'CNPJ *' : 'CPF *'"
-                            class="mt-1 block w-full h-9 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
+                            class="mt-1 block w-full h-9  px-2 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
 
                         @if (formRegister.controls['cpf_cnpj'].touched) {
                         @if (formRegister.controls['cpf_cnpj'].errors?.['required']) {
@@ -130,7 +170,7 @@
                         <span class="text-red-500 ml-2">
                             @if (formRegister.value.tipo_pessoa === '') {
                             Selecione o tipo de pessoa.
-                            } 
+                            }
                         </span>
                         }
 
@@ -139,9 +179,9 @@
 
                     <!-- TELEFONE -->
                     <div class="mt-4">
-                        <input type="text" formControlName="telefone" placeholder=" Telefone  *" maxlength="11"
-                            pattern="[0-9]*"
-                            class="mt-1 block w-full h-9 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
+                        <input type="text" formControlName="telefone" placeholder="Telefone  *" data-last-length="0"
+                            maxlength="15" (input)="mascaraTelefone($event)"
+                            class="mt-1 block w-full h-9  px-2 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
                         @if (formRegister.controls['telefone'].touched) {
                         @if (formRegister.controls['telefone'].errors?.['required']) {
                         <span class="text-red-500 ml-2">Telefone obrigatório.</span>
@@ -155,21 +195,22 @@
                     <!-- INSCRIÇÃO ESTADUAL -->
                     @if (formRegister.value.tipo_pessoa === 'pj') {
                     <div class="mt-4">
-                        <input type="text" formControlName="inscricao_estadual" placeholder=" Inscrição Estadual"
-                            class="mt-1 block w-full h-9 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
+                        <input type="text" formControlName="inscricao_estadual" placeholder="Inscrição Estadual"
+                            class="mt-1 block w-full h-9  px-2 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
                     </div>
                     }
 
                     <!-- SENHA -->
                     <div class="mt-4">
-                        <input type="password" formControlName="password" placeholder=" Sua senha *"
-                            class="mt-1 block w-full h-9 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
+                        <input type="password" formControlName="password" placeholder="Sua senha *"
+                            class="mt-1 block w-full h-9  px-2 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
                         @if (formRegister.controls['password'].touched) {
                         @if (formRegister.controls['password'].errors?.['required']) {
                         <span class="text-red-500 ml-2">Senha obrigatória.</span>
                         }
                         @if (formRegister.controls['password'].errors?.['pattern']) {
-                        <span class="text-red-500 ml-2">Senha fraca (mín. 8 caracteres, maiúscula, número e símbolo).
+                        <span class="text-red-500 ml-2">Senha fraca mín.( 8 caracteres, 1 maiúscula, 1 número e 1
+                            símbolo).
                         </span>
                         }
                         }
@@ -177,8 +218,8 @@
 
                     <!-- CONFIRMAR SENHA -->
                     <div class="mt-4">
-                        <input type="password" formControlName="password_confirmation" placeholder=" Confirmar senha *"
-                            class="mt-1 block w-full h-9 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
+                        <input type="password" formControlName="password_confirmation" placeholder="Confirmar senha *"
+                            class="mt-1 block w-full h-9  px-2 dark:bg-gray-900/50 dark:text-white shadow-sm rounded-sm" />
                         @if (formRegister.errors?.['senhasDiferentes'] &&
                         formRegister.controls['password_confirmation'].touched) {
                         <span class="text-red-500 ml-2">
@@ -187,10 +228,18 @@
                         }
                     </div>
 
-                    <!-- BOTÃO -->
+                    <div class="mt-6 flex justify-center">
+                        <a class="text-sm underline">
+                            <re-captcha #captchaRef
+                            siteKey="6LeLl4YrAAAAAG36LmmnCq7PbEO_kzBKZkngaUxN"
+                                (resolved)="onCaptchaResolved($event)">
+                            </re-captcha>
+                        </a>
+                    </div>
+
+                    <!-- BOTÃO  REGISTER-->
                     <div class="mt-6">
-                        <button type="submit" [disabled]="!formRegister.valid"
-                            class="w-full rounded-sm bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700
+                        <button type="submit" class="w-full rounded-sm bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700
                              transition  active:scale-94   hover:text-gray-700   dark:hover:text-gray-300">
                             Criar conta
                         </button>
@@ -199,8 +248,7 @@
                     <!-- LOGIN -->
                     <div class="mt-6">
                         <hr class="w-full h-px border-0 bg-gray-200 dark:bg-gray-700 rounded">
-                        <a routerLink="../login"
-                            class="w-full mt-4 inline-flex justify-center rounded-sm bg-orange-600/90 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-indigo-50 focus:ring-offset-2 dark:focus:ring-offset-gray-800
+                        <a routerLink="../login" class="w-full mt-4 inline-flex justify-center rounded-sm bg-orange-600/90 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-indigo-50 focus:ring-offset-2 dark:focus:ring-offset-gray-800
                              transition  active:scale-94   hover:text-gray-700   dark:hover:text-gray-300">
                             Já tem conta? Faça login
                         </a>

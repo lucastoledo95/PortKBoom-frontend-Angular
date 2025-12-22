@@ -71,22 +71,22 @@
                         maiúscula,
                         minúscula, número e símbolo especial.</span>
                     }
-
-
                     }
 
-                    <!--
+                    
                     <div class="mt-6 flex justify-center">
                         <a class="text-sm underline">
-                            <re-captcha siteKey="6LeLl4YrAAAAAG36LmmnCq7PbEO_kzBKZkngaUxN"
+                            <re-captcha #captchaRef
+                            siteKey="6LeLl4YrAAAAAG36LmmnCq7PbEO_kzBKZkngaUxN"
                                 (resolved)="onCaptchaResolved($event)">
                             </re-captcha>
                         </a>
                     </div>
-           -->
+           
+
 
                     <div class="mt-6">
-                        <button type="submit" [disabled]="!formLogin.valid"
+                        <button type="submit"
                             class="w-full inline-flex justify-center rounded-sm bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-indigo-50 focus:ring-offset-2 dark:focus:ring-offset-gray-800
                             transition  active:scale-94   hover:text-gray-700   dark:hover:text-gray-300">
                             Entrar

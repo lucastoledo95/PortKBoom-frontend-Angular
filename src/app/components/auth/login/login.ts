@@ -1,11 +1,11 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild  } from '@angular/core';
 import { ApiMaster, LoginDados } from '../../../services/api-master';
 import { RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { validatorLogin } from '../../../utils/validators';
 import { TitleDynamicService } from '../../../services/title-dynamic.service';
 import { NotificationService } from '../../../services/notification.service';
-import { RecaptchaModule } from 'ng-recaptcha';
+import { RecaptchaModule, RecaptchaComponent } from 'ng-recaptcha'; 
 import { HttpClient } from '@angular/common/http';
 
 
@@ -19,6 +19,8 @@ export class Login implements OnInit {
   title = inject(TitleDynamicService);
   notification = inject(NotificationService)
   captchaToken = signal<string | null>(null);
+  @ViewChild('captchaRef') captchaRef!: RecaptchaComponent;
+
 
   ApiMaster = inject(ApiMaster);
   logo = this.ApiMaster.logoUrl;
@@ -35,25 +37,35 @@ showPassword = false;
       Validators.required,
       Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/)
     ]),
-    /*  
+      
   recaptcha: new FormControl('',
       Validators.required,
     )
-      */
+      
   });
 
 
   constructor(private http: HttpClient) {
     //  this.ApiMaster.getUser();
 
+  this.ApiMaster.onLoginError.subscribe(() => {
+
+    // Resetar captcha
+    if (this.captchaRef) this.captchaRef.reset();
+
+    // limpar form
+    this.formLogin.get('recaptcha')?.reset();
+    this.captchaToken.set(null);
+  });
+
   }
 
-/* 
+
   onCaptchaResolved(token: string | null) {
     this.captchaToken.set(token);
     this.formLogin.get('recaptcha')?.setValue(token);
   }
-*/
+
 
   ngOnInit(): void {
 
@@ -61,12 +73,15 @@ showPassword = false;
   }
 
   onSubmit() {
- /*     const token = this.captchaToken();
+
+     // Marca tudo como touched antes de validar
+    this.formLogin.markAllAsTouched();
+
+     const token = this.captchaToken();
     if (!token) {
       this.notification.error('CAPTCHA inválido, tente novamente.');
       return
     }
-*/
 
     if (this.formLogin.invalid) {
       this.notification.error('Informações incorretas.');
@@ -78,7 +93,7 @@ showPassword = false;
     const dados: LoginDados = {
       login: login ?? '',
       password: password ?? '',
-      //recaptcha_token: token
+      recaptcha_token: token
     };
 
     this.ApiMaster.onLogin(dados)
