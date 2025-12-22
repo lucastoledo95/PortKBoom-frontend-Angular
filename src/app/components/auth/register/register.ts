@@ -22,49 +22,64 @@ export class Register implements OnInit {
   logo = this.ApiMaster.logoUrl;
   banner = this.ApiMaster.bannerLoginUrl;
 
-  formRegister = new FormGroup({
+  formRegister!: FormGroup;
 
-    name: new FormControl('', [
-      Validators.required,
-      Validators.minLength(8),
-      Validators.maxLength(100),
-    ]),
+  ngOnInit(): void {
+    this.title.set('Cadastro');
 
-    email: new FormControl('', [
-      Validators.required,
-      validatorLogin.email(),
-    ]),
+    // 1) Criar grupo primeiro
+    this.formRegister = new FormGroup({
+      name: new FormControl('', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.maxLength(100),
+      ]),
 
-    tipo_pessoa: new FormControl<'pf' | 'pj' | ''>('', [
-      Validators.required,
-    ]),
+      email: new FormControl('', [
+        Validators.required,
+        validatorLogin.email(),
+      ]),
 
-    cpf_cnpj: new FormControl('', [
-      Validators.required,
-      validatorLogin.cpfOuCnpj(),
-    ]),
+      tipo_pessoa: new FormControl<'pf' | 'pj' | ''>('', [
+        Validators.required,
+      ]),
 
-    telefone: new FormControl('', [
-      Validators.required,
-      Validators.pattern(/^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/),
-    ]),
+      cpf_cnpj: new FormControl('', [
+        Validators.required
+        // validator será adicionado depois
+      ]),
 
-    inscricao_estadual: new FormControl('', []),
+      telefone: new FormControl('', [
+        Validators.required,
+        Validators.pattern(/^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/),
+      ]),
 
-    password: new FormControl('', [
-      Validators.required,
-      Validators.pattern(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
-      ),
-    ]),
+      inscricao_estadual: new FormControl(''),
 
-    password_confirmation: new FormControl('', [
-      Validators.required,
-    ]),
+      password: new FormControl('', [
+        Validators.required,
+        Validators.pattern(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
+        ),
+      ]),
 
-  }, {
-    validators: this.passwordsIguaisValidator
-  });
+      password_confirmation: new FormControl('', [
+        Validators.required,
+      ]),
+    }, {
+      validators: this.passwordsIguaisValidator
+    });
+
+    // adicionar validator que depende de outro control
+    this.formRegister.controls['cpf_cnpj'].addValidators(
+      validatorLogin.cpfOuCnpj(() => this.formRegister.controls['tipo_pessoa'].value)
+    );
+
+    // Revalidar CPF/CNPJ quando o tipo mudar
+    this.formRegister.controls['tipo_pessoa'].valueChanges.subscribe(() => {
+      this.formRegister.controls['cpf_cnpj'].updateValueAndValidity();
+    });
+  }
 
   passwordsIguaisValidator(group: AbstractControl) {
     const password = group.get('password')?.value;
@@ -75,10 +90,6 @@ export class Register implements OnInit {
     return password === confirm
       ? null
       : { senhasDiferentes: true };
-  }
-
-  ngOnInit(): void {
-    this.title.set('Cadastro');
   }
 
   onSubmit() {

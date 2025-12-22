@@ -89,25 +89,31 @@ export const validatorLogin = {
     };
   },
 
-  cpfOuCnpj: (): ValidatorFn => {
+cpfOuCnpj: (getTipoPessoa: () => string): ValidatorFn => {
   return (control: AbstractControl): ValidationErrors | null => {
+
+    const tipo = getTipoPessoa()?.toLowerCase();
     const val = control.value?.toString().trim();
     if (!val) return null;
 
-    // só números
+    // Só números
     if (!/^\d+$/.test(val)) {
       return { apenasNumeros: true };
     }
 
-    if (val.length === 11) {
+    // PF → espera 11 dígitos
+    if (tipo === 'pf') {
+      if (val.length !== 11) return { tamanhoInvalido: true };
       return validarCPF(val) ? null : { cpfInvalido: true };
     }
 
-    if (val.length === 14) {
+    // PJ → espera 14 dígitos
+    if (tipo === 'pj') {
+      if (val.length !== 14) return { tamanhoInvalido: true };
       return validarCNPJ(val) ? null : { cnpjInvalido: true };
     }
 
-    return { tamanhoInvalido: true };
+    return null;
   };
 },
 
